@@ -1,0 +1,8 @@
+t1 a1 b2 b3
+t2 b1 a2 b2 a3
+t3 a2 b3 a3
+t4 a2 a3 b1
+t5 a3 a1 b1
+t6 a3 a1 b1
+t7 a3 b2 a1
+t8 a3 b2 b3
