@@ -42,7 +42,7 @@ public class Global_sup extends Main {
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
-        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
+        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；");
         System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；");
         System.out.println("6.最後有多少 #locations：\t" + locationsCount(bipartiteData.biT) + "個；");
         System.out.println("7.原始 #locations：\t\t\t" + locationsCount(new Bipartite(getTrajectoryData(inputFileName)).biT) + "個；");

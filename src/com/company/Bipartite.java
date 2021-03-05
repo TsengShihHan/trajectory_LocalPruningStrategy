@@ -234,20 +234,30 @@ public class Bipartite {
                 ArrayList<LinkedList<String>> edgeUpdate4 = new ArrayList<>();
                 if (this.new_biCT.containsKey(updateSourcePart)) {
                     edgeUpdate4.addAll(this.new_biCT.get(updateSourcePart));  //雙向邊緣更新4
+
+                    if (!edgeUpdate4.contains(targetPart)) {
+                        edgeUpdate4.add(targetPart);
+                        this.new_biCT.put(updateSourcePart, edgeUpdate4);
+                    }
+                } else {
+                    edgeUpdate4.add(targetPart);
+                    this.new_biCT.put(updateSourcePart, edgeUpdate4);
                 }
-                edgeUpdate4.add(targetPart);
-                this.new_biCT.put(updateSourcePart, edgeUpdate4);
 
                 ArrayList<LinkedList<String>> edgeUpdate5 = new ArrayList<>();
-                if (this.new_biCT.containsKey(targetPart)){
+                if (this.new_biCT.containsKey(targetPart)) {
                     edgeUpdate5.addAll(this.new_biCT.get(targetPart));
+
+                    if (!edgeUpdate5.contains(updateSourcePart)) {
+                        edgeUpdate5.add(updateSourcePart);
+                        this.new_biCT.put(targetPart, edgeUpdate5);
+                    }
+                } else {
+                    edgeUpdate5.add(updateSourcePart);
+                    this.new_biCT.put(targetPart, edgeUpdate5);
                 }
-                edgeUpdate5.add(updateSourcePart);
-                this.new_biCT.put(targetPart, edgeUpdate5);
             }
-
         }
-
     }
 
     /*

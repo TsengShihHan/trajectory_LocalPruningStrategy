@@ -18,7 +18,7 @@ public class Main {
         UgainCount ugainCount = new UgainCount();
         final float Pbr = (float) 0.5;  //所設定的Pbr閥值
         int intoGlobal = 0;
-        String inputFileName = "400.txt";  //輸入測試檔案名稱
+        String inputFileName = "test.txt";  //輸入測試檔案名稱
 
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
@@ -34,17 +34,23 @@ public class Main {
             }  //終止條件設定
 
             Map.Entry<LinkedList<String>, Float> localMaxUgainPart = findLocalMaxUgain(bipartiteData, findOrgPP, ugainCount, trajectoryData, Pbr, findOrgPP.problematicTotal);
+            if (localMaxUgainPart != null) {
+                if (localMaxUgainPart.getValue() > 0) {
+                    LinkedList<String> localMaxUgainPartKey = localMaxUgainPart.getKey();
+                    trajectoryData.get(localMaxUgainPartKey.get(0)).remove(localMaxUgainPartKey.get(1));  //依據回傳位置刪除軌跡，而位置index需轉回int型態
+                    bipartiteData = new Bipartite(trajectoryData);
 
-            if (localMaxUgainPart.getValue() > 0) {
-                LinkedList<String> localMaxUgainPartKey= localMaxUgainPart.getKey();
-                trajectoryData.get(localMaxUgainPartKey.get(0)).remove(localMaxUgainPartKey.get(1));  //依據回傳位置刪除軌跡，而位置index需轉回int型態
-                bipartiteData = new Bipartite(trajectoryData);
+                } else {
+                    intoGlobal = 1;
+                    new Global_sup(trajectoryData, Pbr, createBipartiteGraphStartTime, createBipartiteGraphEndTime, inputFileName, ugainCount.ugain_count);
+                    break;
 
-            }
-            else {
+                }
+            } else {
                 intoGlobal = 1;
                 new Global_sup(trajectoryData, Pbr, createBipartiteGraphStartTime, createBipartiteGraphEndTime, inputFileName, ugainCount.ugain_count);
                 break;
+
             }
         }
         long programEndTime = System.currentTimeMillis();   //獲取程式最結束終時間
@@ -73,7 +79,7 @@ public class Main {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/Gowalla/avg_len5/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
             String str;
 
             while ((str = reader.readLine()) != null) {
@@ -132,15 +138,16 @@ public class Main {
                 float deleteRate = (float) (problematicTotal - upperLocationPart) / problematicTotal;
 
                 float localUpper = deleteRate * lostRate;
-
+//                System.out.println("User：" + user + "," + " Remove：" + location + ", " + noNeedCount + ", " + localUpper);
                 LinkedList<String> localScan = new LinkedList<>();
                 localScan.add(user);
                 localScan.add(location);
                 localScanPart.put(localScan, localUpper);
             }));
         });
+//        System.out.println("**********************");
         Map.Entry<LinkedList<String>, Float> localMaxUpperPart = getMaxEntryInMapBasedOnValue(localScanPart);
-
+//        System.out.println(localMaxUpperPart);
         //計算最大Upper中的實際Ugain數值
         float maxUpperForUgain = 0.0f;
         ArrayList<LinkedList<String>> singleUserBipartite = bipartiteData.trajectoryDataForPositionPart.get(localMaxUpperPart.getKey().get(0));
@@ -163,15 +170,26 @@ public class Main {
 
         //刪除不可能具有最大項目的區域計算
         ArrayList<LinkedList<String>> updateLocalScanPart = new ArrayList<>();  //[[t8, b2], [t6, b1], [t7, a1], [t8, b3],.....]
-        for (LinkedList<String> part : localScanPart.keySet()) {
-            if (localScanPart.get(part) > maxUpperForUgain) {
+//        for (LinkedList<String> part : localScanPart.keySet()) {
+//            if (localScanPart.get(part) > maxUpperForUgain) {
+//                updateLocalScanPart.add(part);
+//            }
+//        }
+        float finalMaxUpperForUgain = maxUpperForUgain;
+        localScanPart.forEach((part, value) -> {
+            if (value > finalMaxUpperForUgain) {
                 updateLocalScanPart.add(part);
             }
-        }
+        });
+        //離開區域程式計算
+        float PS_effect = (float) updateLocalScanPart.size() / localScanPart.size();  //當PS_effect>指定數值，表示刪除率以過少，直接跳Global執行
+        if (PS_effect > 0.9) {
+            return null;
 
-        if (updateLocalScanPart.isEmpty()) {
+        } else if (updateLocalScanPart.isEmpty()) {
             ugainCount.addUgain();
             return localMaxUpperPart;
+
         }
 
 
