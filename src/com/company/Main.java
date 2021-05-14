@@ -109,17 +109,17 @@ public class Main {
     private static Map.Entry<LinkedList<String>, Float> findLocalMaxUgain(Bipartite bipartiteData, FindPP findOrgPP, UgainCount ugainCount, HashMap<String, LinkedList<String>> trajectoryData, float Pbr, int problematicTotal) {
         //找出最大的Upper
         HashMap<LinkedList<String>, Float> localScanPart = new HashMap<>();  //儲存計算的part，之後再PruningStrategy計算出要刪除的部分後，更新此表再重新計算Ugain數值找出最大
-        bipartiteData.trajectoryDataForPositionPart.forEach((user, bipartite) -> {
+        findOrgPP.problematic.keySet().forEach((user) -> {
             HashSet<String> needCount = new HashSet<>();
             int trajectoryData_userSize = trajectoryData.get(user).size();
             float lostRate = 1.0f / (1.0f - ((trajectoryData_userSize - 1.0f) * (trajectoryData_userSize - 2.0f)) / (trajectoryData_userSize * (trajectoryData_userSize - 1.0f)));
 
 
-            bipartite.forEach((part) -> needCount.addAll(bipartiteData.biT.get(part)));
+            bipartiteData.trajectoryDataForPositionPart.get(user).forEach((part) -> needCount.addAll(bipartiteData.biT.get(part)));
 
-            bipartite.forEach((part) -> part.forEach((location) -> {
+            bipartiteData.trajectoryDataForPositionPart.get(user).forEach((part) -> part.forEach((location) -> {
                 HashSet<String> subNeedCount = new HashSet<>(needCount);  //全部預計算的項目
-                ArrayList<String> noNeedCount = new ArrayList<>(findOrgPP.problematic.keySet());
+                ArrayList<String> noNeedCount = new ArrayList<>(bipartiteData.trajectoryDataForPositionPart.keySet());
 
                 LinkedList<String> findContainTjt = new LinkedList<>(part);  //移除軌跡找出關聯的t的bipartite分群項目
                 findContainTjt.remove(location);
