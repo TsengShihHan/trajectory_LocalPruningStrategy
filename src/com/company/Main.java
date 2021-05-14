@@ -18,7 +18,7 @@ public class Main {
         UgainCount ugainCount = new UgainCount();
         final float Pbr = (float) 0.5;  //所設定的Pbr閥值
         int intoGlobal = 0;
-        String inputFileName = "test.txt";  //輸入測試檔案名稱
+        String inputFileName = "tmp.txt";  //輸入測試檔案名稱
 
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
@@ -28,6 +28,7 @@ public class Main {
 
         while (true) {
             FindPP findOrgPP = new FindPP(bipartiteData.biT, bipartiteData.biCT, Pbr, 0);  //二-1、掃描異常項目 check：0初始化/1loop計算
+//            System.out.println("Total：" + findOrgPP.problematicTotal);
             if (findOrgPP.problematicTotal.equals(0)) {
                 break;
 
@@ -42,12 +43,14 @@ public class Main {
 
                 } else {
                     intoGlobal = 1;
+                    System.out.println("goToGlobal");
                     new Global_sup(trajectoryData, Pbr, createBipartiteGraphStartTime, createBipartiteGraphEndTime, inputFileName, ugainCount.ugain_count);
                     break;
 
                 }
             } else {
                 intoGlobal = 1;
+                System.out.println("goToGlobal");
                 new Global_sup(trajectoryData, Pbr, createBipartiteGraphStartTime, createBipartiteGraphEndTime, inputFileName, ugainCount.ugain_count);
                 break;
 
@@ -145,6 +148,8 @@ public class Main {
                 localScanPart.put(localScan, localUpper);
             }));
         });
+//        System.out.println(localScanPart.size());
+
 //        System.out.println("**********************");
         Map.Entry<LinkedList<String>, Float> localMaxUpperPart = getMaxEntryInMapBasedOnValue(localScanPart);
 //        System.out.println(localMaxUpperPart);
@@ -192,7 +197,8 @@ public class Main {
 
         }
 
-
+//        System.out.println(updateLocalScanPart.size());
+//        System.out.println("------------------------------------");
         //重新計算剩餘的項目找出最大的upper
         HashMap<LinkedList<String>, Float> localUgainMap = new HashMap<>();
         for (LinkedList<String> localScan : updateLocalScanPart) {
